@@ -77,6 +77,10 @@ calculate_required_offset(parent_network_folder+'1.20/FinalHaematocrit.vtp')
 calculate_required_offset(parent_network_folder+'1.30/FinalHaematocrit.vtp')
 calculate_required_offset(parent_network_folder+'1.40/FinalHaematocrit.vtp')
 
+# =============================================================================
+# UNUSED FUNCTIONALITY
+# =============================================================================
+
 '''
 d_P = 100
 mean_1 = 8

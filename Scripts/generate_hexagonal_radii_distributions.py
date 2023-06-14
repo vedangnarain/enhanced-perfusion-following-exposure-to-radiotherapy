@@ -12,9 +12,6 @@ The minimum is set based on the biological tumours. The max. is set by the lengt
 the inlets
 
 Tested in Python 3.7.4.
-
-Used to generate figure in Transfer Report.
-
 """
 
 # Initialise libraries

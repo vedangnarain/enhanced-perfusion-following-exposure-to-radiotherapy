@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
 Created on Fri Feb  4 16:58:31 2022
 
@@ -8,10 +7,7 @@ Created on Fri Feb  4 16:58:31 2022
   
 Tested in Python 3.7.4.
 
-Calculate Metrics of Hexagonal Network with log-normally distributed radii and
-individual vessel pruning.
-
-Used to generate figure in Transfer Report.
+Calculate metrics for the hexagonal network with log-normally distributed radii and individual vessel pruning.
 """
 
 # =============================================================================
@@ -39,6 +35,7 @@ import matplotlib
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
 matplotlib.rcParams.update({'font.size': 22})
+
 # =============================================================================
 # FUNCTIONS
 # =============================================================================
@@ -175,10 +172,10 @@ reference_node_coordinates = get_reference_hexagonal_network('/home/narain/Deskt
 description = '_lognormal_hexagonal_individual_pruning_geometric_metrics_sigma_' + sd_folder
 
 # Get the stats for all solvers (change to read=1 to extract from .vti files directly)
-#solver_stats = get_solver_stats(solver_name, mean_list, kills_list, max_layouts, hypoxic_threshold_list, plot=0, read=0)
+solver_stats = get_solver_stats(solver_name, mean_list, kills_list, max_layouts, hypoxic_threshold_list, plot=0, read=1)
 
 # Save array
-#np.save(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy', solver_stats)
+np.save(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy', solver_stats)
 solver_stats = np.load(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy')
 
 # Filter by mean
@@ -380,6 +377,7 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 #    axs[row_index].spines['top'].set_visible(False)
     axs[row_index].title.set_text('${σ}$ = ' + sd_folder + ' µm')
 row_index+=1
+
 '''
 # Plot the % PQ change for a solver
 for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
@@ -422,7 +420,6 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 #    axs[row_index].spines['top'].set_visible(False)
 row_index+=1
 '''
-
 
 # '''
 # Plot the resistance per loop
@@ -496,34 +493,8 @@ fig.savefig(file_path, dpi=500, bbox_inches = 'tight')
 # Prints execution time
 print("\n--- Execution Time: %s seconds ---" % (time.time() - start_time))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # =============================================================================
-# EXTRA CODE
+# UNUSED FUNCTIONALITY
 # =============================================================================
 
 # =============================================================================

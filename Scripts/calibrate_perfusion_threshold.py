@@ -7,7 +7,7 @@ Created on Tue Jun 14 12:35:22 2022
 
 Tested in Python 3.7.4.
 
-Plot the PQs for a network with a varying threshold. Varying the thresholds helps pick a threshold that ensures that the initial PQ of a network varies enough.
+Plot the PQs for a network with a varying threshold. Varying the thresholds helps pick a threshold that ensures that the initial PQ of a network covers an appropriate range.
 
 """
 

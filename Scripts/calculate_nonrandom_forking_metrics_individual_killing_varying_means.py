@@ -7,7 +7,7 @@ Created on Wed Jun 29 21:01:37 2022
 
 Tested in Python 3.7.4.
 
-Calculate metrics of Nonrandom Forking Network with individual vessel pruning and varying means.
+Calculate metrics for the forking network with individual vessel pruning and varying means.
 """
 
 # =============================================================================
@@ -60,6 +60,7 @@ def get_distribution_stats(solver_name, alpha_value, mean_value, kills, hypoxic_
         
         # Compute the architectural metrics
         n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component = get_forking_predictors(network_path, reference_rank_lengths, reference_node_coordinates, pq_threshold, diameter_threshold_list, flow_rate_threshold_list)
+        
         '''
         # Compute the O2 distribution
         field_data, field_spacing = get_vti_data(field_path)  # import the O2 distribution for the network
@@ -203,6 +204,7 @@ pq_composite = np.vstack([mean_0['PQ'], mean_1['PQ'], mean_2['PQ']])
 # =============================================================================
 # FIGURE 2
 # =============================================================================
+
 # '''
 # Set the figure design
 fig, axs = plt.subplots(1, 2, figsize=(12.5, 5.5), tight_layout = {'pad': 2.5})
@@ -344,7 +346,7 @@ axs[row_index].title.set_text('${α}$ = ' + graph_alpha_list[which_alpha])
 # FIGURE 7: RAW PQ
 # =============================================================================
 
-# '''
+'''
 # Plot the raw PQ for a solver
 for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 #    pq_composite[:,0]=pq_composite[:,1]  # fix flow rate error
@@ -358,12 +360,12 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     # axs[row_index].legend()
     axs[row_index].grid()
     axs[row_index].title.set_text('${α}$ = ' + graph_alpha_list[which_alpha]) 
-# '''
+'''
 
 # =============================================================================
 # FIGURE 8: PQ + NETWORK COMPOSITION (MEANS)
 # =============================================================================
-'''
+# '''
 # Set the figure design
 fig, axs = plt.subplots(1, 1, figsize=(6.25, 5.5))
 # fig.subplots_adjust(hspace = .75, wspace = 0.5)
@@ -409,7 +411,7 @@ ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$')  #, c='C0')
 # fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=axs.transAxes)
 # print()
 
-'''
+# '''
 
 '''
 # Print the relative PF value at certain indices
@@ -440,11 +442,9 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 row_index+=1
 '''
 
-
-
-
-
-
+# =============================================================================
+# SAVE IMAGE
+# =============================================================================
 
 # Show plots
 plt.show()
@@ -459,18 +459,8 @@ fig.savefig(file_path, dpi=250, bbox_inches = 'tight')
 print("\n--- Execution Time: %s seconds ---" % (time.time() - start_time))
 #'''
 
-
-
-
-
-
-
-
-
-
-
 # =============================================================================
-# EXTRA CODE
+# UNUSED FUNCTIONALITY
 # =============================================================================
 '''
 # Set the figure layout

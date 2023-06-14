@@ -100,7 +100,6 @@ legend_elements = [Patch(facecolor='royalblue', label='well-responding tumour'),
                    Patch(facecolor='crimson', label='poorly-responding tumour')]
 
 # Create the figure
-
 plt.show()
 # Set the figure layout
 fig, axs = plt.subplots(3, 1, figsize=(7.5, 16), tight_layout = {'pad': 2})
