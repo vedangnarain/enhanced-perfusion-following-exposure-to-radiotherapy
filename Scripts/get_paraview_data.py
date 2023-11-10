@@ -464,6 +464,66 @@ def filter_by_alpha(alpha_list, solver_stats):
     return alpha_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite, n_connected_components_composite, n_cycles_composite, size_largest_connected_component_composite, n_cycles_largest_connected_component_composite 
 
 # Define a function to filter the simulation stats based on alpha values and return individual matrices
+def filter_by_alpha_fork_stoch(alpha_list, solver_stats):
+    hypoxic_fraction_composite = np.array([])
+    anoxic_fraction_composite = np.array([])
+    mean_composite = np.array([])
+    min_composite = np.array([])
+    half_composite = np.array([])
+    max_composite = np.array([])
+    sd_composite = np.array([])  
+    n_vessels_composite = np.array([])
+    n_perfused_vessels_composite = np.array([])
+    n_unperfused_vessels_composite = np.array([])
+    mean_diameter_composite = np.array([])
+    mean_geometric_resistance_composite = np.array([])
+    diameter_binned_composite = np.array([])  
+    flow_rate_binned_composite = np.array([])
+    n_connected_components_composite = np.array([]) 
+    n_cycles_composite = np.array([])
+    size_largest_connected_component_composite = np.array([])
+    n_cycles_largest_connected_component_composite = np.array([])
+    for alpha_value in alpha_list:
+        alpha_array = solver_stats[(solver_stats[:,0]==float(alpha_value))]
+        hypoxic_fraction_data = alpha_array[:,2]  # extract data between identifiers and basic stats (i.e., hypoxic fractions)
+        anoxic_fraction_data = alpha_array[:,3]  # extract data between identifiers and basic stats (i.e., hypoxic fractions)
+        mean_data = alpha_array[:,4]
+        min_data = alpha_array[:,5]
+        half_data = alpha_array[:,6]
+        max_data = alpha_array[:,7]
+        sd_data = alpha_array[:,8]
+        n_vessels_data = alpha_array[:,9]
+        n_perfused_vessels_data = alpha_array[:,10]
+        n_unperfused_vessels_data = alpha_array[:,11]
+        mean_diameter_data = alpha_array[:,12]
+        mean_geometric_resistance_data = alpha_array[:,13]  
+        diameter_binned_data = alpha_array[:,14]  
+        flow_rate_binned_data = alpha_array[:,15]  
+        n_connected_components_data = alpha_array[:,16]  
+        n_cycles_data = alpha_array[:,17]  
+        size_largest_connected_component_data = alpha_array[:,18]  
+        n_cycles_largest_connected_component_data = alpha_array[:,19]  
+        hypoxic_fraction_composite = np.vstack([hypoxic_fraction_composite, hypoxic_fraction_data]) if hypoxic_fraction_composite.size else hypoxic_fraction_data
+        anoxic_fraction_composite = np.vstack([anoxic_fraction_composite, anoxic_fraction_data]) if anoxic_fraction_composite.size else anoxic_fraction_data
+        mean_composite = np.vstack([mean_composite, mean_data]) if mean_composite.size else mean_data
+        min_composite = np.vstack([min_composite, min_data]) if min_composite.size else min_data
+        half_composite = np.vstack([half_composite, half_data]) if half_composite.size else half_data
+        max_composite = np.vstack([max_composite, max_data]) if max_composite.size else max_data
+        sd_composite = np.vstack([sd_composite, sd_data]) if sd_composite.size else sd_data
+        n_vessels_composite = np.vstack([n_vessels_composite, n_vessels_data]) if n_vessels_composite.size else n_vessels_data
+        n_perfused_vessels_composite = np.vstack([n_perfused_vessels_composite, n_perfused_vessels_data]) if n_perfused_vessels_composite.size else n_perfused_vessels_data
+        n_unperfused_vessels_composite = np.vstack([n_unperfused_vessels_composite, n_unperfused_vessels_data]) if n_unperfused_vessels_composite.size else n_unperfused_vessels_data
+        mean_diameter_composite = np.vstack([mean_diameter_composite, mean_diameter_data]) if mean_diameter_composite.size else mean_diameter_data
+        mean_geometric_resistance_composite = np.vstack([mean_geometric_resistance_composite, mean_geometric_resistance_data]) if mean_geometric_resistance_composite.size else mean_geometric_resistance_data
+        diameter_binned_composite = np.vstack([diameter_binned_composite, diameter_binned_data]) if diameter_binned_composite.size else diameter_binned_data
+        flow_rate_binned_composite = np.vstack([flow_rate_binned_composite, flow_rate_binned_data]) if flow_rate_binned_composite.size else flow_rate_binned_data
+        n_connected_components_composite = np.vstack([n_connected_components_composite, n_connected_components_data]) if n_connected_components_composite.size else n_connected_components_data
+        n_cycles_composite = np.vstack([n_cycles_composite, n_cycles_data]) if n_cycles_composite.size else n_cycles_data
+        size_largest_connected_component_composite = np.vstack([size_largest_connected_component_composite, size_largest_connected_component_data]) if size_largest_connected_component_composite.size else size_largest_connected_component_data
+        n_cycles_largest_connected_component_composite = np.vstack([n_cycles_largest_connected_component_composite, n_cycles_largest_connected_component_data]) if n_cycles_largest_connected_component_composite.size else n_cycles_largest_connected_component_data
+    return alpha_array, hypoxic_fraction_composite, anoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite, n_connected_components_composite, n_cycles_composite, size_largest_connected_component_composite, n_cycles_largest_connected_component_composite 
+
+# Define a function to filter the simulation stats based on alpha values and return individual matrices
 def filter_by_mean_hex(alpha_list, solver_stats):
     hypoxic_fraction_composite = np.array([])
     mean_composite = np.array([])
@@ -550,7 +610,7 @@ def get_diameter_distribution(reference_network_path):
 
 # Define a function to bin an array according to three thresholds
 def filter_by_thresholds(array, threshold_list):
-    
+
     # Extract the thresholds
     threshold_1 = threshold_list[0]
     threshold_2 = threshold_list[1]

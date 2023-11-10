@@ -159,10 +159,12 @@ flow_rate_threshold_list = [1e-13, 2e-12, 5e-12]
 
 # Set the folder path
 solver_name = solver_list[0]
-sd_folder = sd_list[1]
-which_mean = 0
-main_folder_path = '/home/narain/Desktop/Results/Hexagonal/Individual Pruning in Hexagonal Network with 100 Selections and Varying Means with SD of ' + sd_folder + '/TestHexagonalNetwork/'
-#main_folder_path = '/tmp/narain/testoutput/TestHexagonalNetwork/'
+which_sd = 0
+sd_folder = sd_list[which_sd]
+which_mean = 2
+# main_folder_path = '/scratch/narain/Hexagonal/Log Normal Distribution/Individual Pruning in Hexagonal Network with 100 Selections and Varying Means with SD of ' + sd_folder + '/TestHexagonalNetwork/'
+main_folder_path = '/home/narain/Desktop/Results/Hexagonal/Without Oxygen/Individual Pruning in Hexagonal Network with 100 Selections and Varying Means with SD of ' + sd_folder + '/TestHexagonalNetwork/'
+# main_folder_path = '/tmp/narain/testoutput/TestHexagonalNetwork/'
 
 # Get reference hexagonal network (all node coordinates are the same, regardless of heterogeneity)
 reference_node_coordinates = get_reference_hexagonal_network('/home/narain/Desktop/Scripts/reference_networks/square_hexagonal_network_100_um/Selection1/RadiusThreshold0/FinalHaematocrit.vtp')
@@ -172,10 +174,10 @@ reference_node_coordinates = get_reference_hexagonal_network('/home/narain/Deskt
 description = '_lognormal_hexagonal_individual_pruning_geometric_metrics_sigma_' + sd_folder
 
 # Get the stats for all solvers (change to read=1 to extract from .vti files directly)
-solver_stats = get_solver_stats(solver_name, mean_list, kills_list, max_layouts, hypoxic_threshold_list, plot=0, read=1)
+# solver_stats = get_solver_stats(solver_name, mean_list, kills_list, max_layouts, hypoxic_threshold_list, plot=0, read=0)
 
 # Save array
-np.save(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy', solver_stats)
+# np.save(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy', solver_stats)
 solver_stats = np.load(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy')
 
 # Filter by mean
@@ -252,6 +254,10 @@ sd_pq_composite = np.vstack([line_1_sd, line_2_sd, line_3_sd])
 # =============================================================================
 # COMBINED PLOTS
 # =============================================================================
+
+linestyles = ['solid', 'dashed', 'dotted', 'dashdot', (0,(5,10)), (0, (3, 1, 1, 1, 1, 1))]
+linecolours = ['#0072B2', '#009E73','#D55E00']
+width = 5
 
 '''
 # Set the figure layout
@@ -341,7 +347,7 @@ plt.show()
 
 mean_list = ['0', '1', '2']
 
-#'''
+'''
 # Set the figure layout
 fig, axs = plt.subplots(1, 2, figsize=(12.5, 5.5), tight_layout = {'pad': 2})
 fig.subplots_adjust(hspace = .5, wspace=.25)
@@ -355,6 +361,7 @@ axs = axs.ravel()
 offset = len(mean_list)
 row_index = 0
 
+
 # Plot the raw PQ for a solver
 for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     axs[row_index].set_ylim([0,1])  # set PQ limits
@@ -364,7 +371,7 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     axs[row_index].set_xlim(0)
 #    axs[row_index].set_ylabel('change in PQ (%)') 
     axs[row_index].set_ylabel('PQ') 
-    axs[row_index].set_xlabel('vessels pruned')    
+    axs[row_index].set_xlabel('dosage (vessels pruned)')    
 #    for index in range(0,len(line_changes)):
 #        if line_changes[index]>0:
 #    axs[row_index].axvline(61, c='grey', alpha=0.5)  # highlight flow-rerouting
@@ -378,6 +385,7 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     axs[row_index].title.set_text('${σ}$ = ' + sd_folder + ' µm')
 row_index+=1
 
+# '''
 '''
 # Plot the % PQ change for a solver
 for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
@@ -387,22 +395,22 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 #    axs[row_index].plot(mean_array[:,1], (pq_composite[i-offset*row_index,:]), ls = linestyles[i-offset*row_index], c = linecolours[i-offset*row_index], label = graph_mean_list[i-offset*row_index])
     axs[row_index].set_xlim(0)
 #    axs[row_index].set_ylabel('change in PQ (%)') 
-    axs[row_index].set_ylabel('change in PQ (%)') 
-    axs[row_index].set_xlabel('vessels pruned')    
+    axs[row_index].set_ylabel(r'$\Delta_{\%} \mathcal{P}$') 
+    axs[row_index].set_xlabel('dosage (vessels pruned)')    
 #    for index in range(0,len(line_changes)):
 #        if line_changes[index]>0:
 #    axs[row_index].axvline(61, c='grey', alpha=0.5)  # highlight flow-rerouting
 #    axs[row_index].text(60.1,0,'A',rotation=90)
 #    axs[row_index].axvspan(91, 129, facecolor='grey', alpha=0.5)  # highlight selective pruning
 #    axs[row_index].axvline(157, c='grey', alpha=0.5)  # highlight loops per size
-#    axs[row_index].legend()
+    axs[row_index].legend()
     axs[row_index].grid()
 #    axs[row_index].spines['right'].set_visible(False)
 #    axs[row_index].spines['top'].set_visible(False)
     axs[row_index].title.set_text('${σ}$ = ' + sd_folder + ' µm')
 row_index+=1
 
-'''
+# '''
 
 '''
 # Plot the loops per vessel
@@ -421,7 +429,7 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
 row_index+=1
 '''
 
-# '''
+'''
 # Plot the resistance per loop
 for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     
@@ -435,20 +443,19 @@ for i in range(len(mean_list)*row_index,len(mean_list)*(row_index+1)):
     axs[row_index].set_ylabel(r'$\overline{R}_β^{geom} (\times 10^{-2})$') 
     axs[row_index].legend()
     axs[row_index].grid(True)
-    
+   
 # Show plots
 plt.show()
-# '''
+'''
 
 # =============================================================================
 # NETWORK COMPOSITION
 # =============================================================================
-'''
+# '''
 # Set the figure layout
 fig, axs = plt.subplots(1, 1, figsize=(6.25, 5.5))
 # fig.subplots_adjust(hspace = .5, wspace=.25)
 linestyles = ['dotted', 'dashdot', 'solid', 'dashed', (0,(5,10)), (0, (3, 1, 1, 1, 1, 1))]
-linecolours = ['C0', 'g','r']
 #plt.suptitle(solver_name + ' haematocrit solver in the heterogeneous hexagonal vessel network with stochastic pruning')
 
 # Plot the distribution stats for a solver
@@ -462,33 +469,38 @@ row_index = 0
 for mean_i in range(0,3):
     n_perfused_vessels_composite[mean_i,0:2]=n_perfused_vessels_composite[which_mean,2]
     n_unperfused_vessels_composite[mean_i,0:2]=n_unperfused_vessels_composite[which_mean,2]
+    pq_composite[mean_i,0:2]=pq_composite[which_mean,2]  # fix flow rate error
 
 ax2 = axs.twinx()
 #axs.plot(mean_array[:,1], n_vessels_composite[x], ls='dotted', label='total')
-axs.plot(mean_array[:,1], n_perfused_vessels_composite[which_mean], ls='dashed', label='perfused', c='g', lw=3)
-axs.plot(mean_array[:,1], n_unperfused_vessels_composite[which_mean], ls='dotted', label='hypoperfused', c='r', lw=3)
+axs.plot(mean_array[:,1], n_perfused_vessels_composite[which_mean], ls='dashed', label='perfused', lw=width, c=linecolours[1])
+axs.plot(mean_array[:,1], n_unperfused_vessels_composite[which_mean], ls='dotted', label='hypoperfused', lw=width, c=linecolours[2])
 axs.set_xlim(0)
 axs.set_ylim(0,400)
-axs.set_xlabel('vessels pruned')    
-axs.set_ylabel('network composition (vessels)') 
+axs.set_xlabel('dosage (vessels pruned)')    
 axs.grid()
-pq_composite[:,0]=pq_composite[:,1]  # fix flow rate error
-ax2.plot(mean_array[:,1], (pq_composite[which_mean,:]-pq_composite[which_mean,1])*100/pq_composite[which_mean,1], c='C0', lw=3, label='$\Delta_{\%} \mathcal{P}$')
+# pq_composite[:,0]=pq_composite[:,1]  # fix flow rate error
+ax2.plot(mean_array[:,1], (pq_composite[which_mean,:]-pq_composite[which_mean,1])*100/pq_composite[which_mean,1], lw=width, c=linecolours[0], label='$\Delta_{\%} \mathcal{P}$')
 ax2.set_ylim(-100,20)  
-ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$')
-# axs.title.set_text(r'$\overline{d}$ = ' + graph_mean_list[which_mean])  
-# fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=axs.transAxes)
+axs.title.set_text(r'$\overline{d}$ = ' + graph_mean_list[which_mean])  
+if which_mean==0:
+    axs.set_ylabel('composition (number of vessels)') 
+    # axs.text(-0.5, 0.5, '${σ}$ = ' + sd_folder + ' µm', va='center', ha='right', transform=axs[which_sd, which_mean].transAxes)
+    if which_sd==0:
+        fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=axs.transAxes)
+if which_mean==2:
+    ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$')
 
 # Show plots
 plt.show()
 
-'''
+# '''
 # Save image
 #file_path = Path('~/Desktop/Final Figures/' + solver_name + description + '.svg').expanduser()
 #fig.savefig(file_path, dpi=500, bbox_inches = 'tight')
 #file_path = Path('~/Desktop/Final Figures/' + solver_name + description + '.png').expanduser()
-file_path = Path('~/Desktop/Final Figures/' + 'sigma_' + sd_folder + '_mean_' + graph_mean_list[which_mean] + '.png').expanduser()
-fig.savefig(file_path, dpi=500, bbox_inches = 'tight')
+file_path = Path('~/Desktop/Final Figures/' + 'sigma_' + sd_folder + '_mean_' + graph_mean_list[which_mean] + '.tif').expanduser()
+fig.savefig(file_path, dpi=300, bbox_inches = 'tight')
 #'''
 # Prints execution time
 print("\n--- Execution Time: %s seconds ---" % (time.time() - start_time))

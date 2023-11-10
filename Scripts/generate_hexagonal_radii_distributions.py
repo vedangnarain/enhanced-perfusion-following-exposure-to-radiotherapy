@@ -157,7 +157,7 @@ for i in range(len(mean_list)):
 #    print(np.min(distribution), np.max(distribution))
 #    axs[i].legend()
 #    axs[i].grid()
-    axs[i].title.set_text('${µ}$ = ' + str(mean_diameter_list[i]) + ' μm')
+    axs[i].title.set_text(r'$\overline{d}$ =' + str(mean_diameter_list[i]) + ' μm')
     axs[i].tick_params(labelbottom=True)
     axs[i].axvline(mean_diameter_list[i], c='black', ls='--', label='mean')
     axs[i].set_ylim(0, 100)

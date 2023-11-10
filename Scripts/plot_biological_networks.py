@@ -27,15 +27,14 @@ from matplotlib.patches import Patch
 start_time = time.time()
 
 # Set LaTex-style font
-#import matplotlib
-#matplotlib.rcParams['mathtext.fontset'] = 'stix'
-#matplotlib.rcParams['font.family'] = 'STIXGeneral'
-#matplotlib.rcParams.update({'font.size': 22})
+plt.rcParams['mathtext.fontset'] = 'stix'
+plt.rcParams['font.family'] = 'STIXGeneral'
+plt.rcParams.update({'font.size': 22})
 
 # Set poster format
-plt.style.use('seaborn-poster')
-plt.rcParams['font.family'] = 'Arial'
-plt.rcParams.update({'font.size': 25})
+# plt.style.use('seaborn-poster')
+# plt.rcParams['font.family'] = 'Arial'
+# plt.rcParams.update({'font.size': 25})
 
 # =============================================================================
 # DATA
@@ -102,7 +101,7 @@ legend_elements = [Patch(facecolor='royalblue', label='well-responding tumour'),
 # Create the figure
 plt.show()
 # Set the figure layout
-fig, axs = plt.subplots(3, 1, figsize=(7.5, 16), tight_layout = {'pad': 2})
+fig, axs = plt.subplots(3, 1, figsize=(10, 16), tight_layout = {'pad': 2})
 fig.subplots_adjust(hspace = .5, wspace=.25)
 #plt.suptitle(solver_name + ' haematocrit solver in the heterogeneous hexagonal vessel network with stochastic pruning')
 
@@ -110,7 +109,8 @@ fig.subplots_adjust(hspace = .5, wspace=.25)
 axs = axs.ravel()
 #axs.spines['top'].set_visible(False)
 axs[0].bar(tumour_labels, tumour_pq_change, color=colors, label='well-responding')
-axs[0].set_ylabel('change in PQ (%)') 
+axs[0].set_ylabel(r'% change in $\mathcal{P}$') 
+axs[0].set_xlabel('tumours') 
 axs[0].spines['right'].set_visible(False)
 axs[0].spines['top'].set_visible(False)
 axs[0].legend(handles=legend_elements, loc='best')
@@ -118,14 +118,18 @@ axs[0].legend(handles=legend_elements, loc='best')
 
 axs[1].bar(tumour_labels, tumour_mean_diameters, color=colors)
 axs[1].set_ylabel('mean diameter (μm)') 
+axs[1].set_xlabel('tumours') 
 axs[1].spines['right'].set_visible(False)
 axs[1].spines['top'].set_visible(False)
+axs[1].legend(handles=legend_elements, loc='best')
 
 axs[2].bar(tumour_labels, tumour_loops_per_size, color=colors)
 axs[2].set_ylabel(r'loops per vessel $(\times 10^{-2})$') 
 axs[2].set_xlabel('tumours') 
 axs[2].spines['right'].set_visible(False)
 axs[2].spines['top'].set_visible(False)
+axs[2].legend(handles=legend_elements, loc='best')
+
 ## Plot the PQ for a solver
 #for i in range(0,1:
 #    axs[row_index].set_ylim([0,10])  # set PQ limits
