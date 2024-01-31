@@ -153,8 +153,8 @@ def get_hex_domain(field_dataset, field_spacing):
     return field_dataset
 #    return vessel_network, oxygen_distribution, middle_x
 
-# Define a function to extract the predictive metrics from the forking network
-def get_forking_predictors(vtk_path, reference_rank_lengths, reference_node_coordinates, pq_threshold, diameter_threshold_list, flow_rate_threshold_list):
+# Define a function to extract the predictive metrics from the forking network (used in Paper 1)
+def get_forking_predictors_old(vtk_path, reference_rank_lengths, reference_node_coordinates, pq_threshold, diameter_threshold_list, flow_rate_threshold_list):
         
     # Get the .vtk data
     point_coordinates_data_array, point_data_array, cell_data_array, polydata = get_vtk_data(vtk_path)
@@ -217,6 +217,81 @@ def get_forking_predictors(vtk_path, reference_rank_lengths, reference_node_coor
 
     # Return the architectural features and the adjacency matrices
     return n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component
+
+# Define a function to extract the predictive metrics from the forking network
+def get_forking_predictors(vtk_path, reference_rank_lengths, reference_node_coordinates, pq_threshold):
+        
+    # Get the .vtk data
+    point_coordinates_data_array, point_data_array, cell_data_array, polydata = get_vtk_data(vtk_path)
+    
+    # Convert the radii and lengths in metres into the right units
+    segment_diameters_um = cell_data_array['Vessel Radius m']*2*1000000  # convert radii (m) to diameters (um)
+    reference_rank_lengths_um = reference_rank_lengths*1000000  # convert length (m to um)
+    
+    # Get the architectural metrics
+    n_vessels = len(cell_data_array['Vessel Radius m'])
+    n_perfused_vessels = len(cell_data_array['Absolute Vessel Flow Rate m^3/s'][cell_data_array['Absolute Vessel Flow Rate m^3/s'] >= pq_threshold])
+    n_unperfused_vessels = n_vessels-n_perfused_vessels
+    mean_diameter = sum(segment_diameters_um)/n_vessels
+    segment_lengths = [reference_rank_lengths_um[int(vessel_rank)] for vessel_rank in cell_data_array['Vessel Owner Rank']]  # get vessel length based on rank    
+    mean_geometric_resistance = sum(segment_lengths/(segment_diameters_um**4))/n_vessels
+
+    # Get a list of vessel segments with node IDs for the adjacency matrices
+    cellIds = vtk.vtkIdList()  # cell ids store to
+    numberOfCells = polydata.GetNumberOfCells()
+    segment_nodes = np.array([])
+    for cellIndex in range(numberOfCells):  # for every cell
+    #    print('new cell')
+        polydata.GetCellPoints(cellIndex, cellIds)  # get IDs of nodes of the given cell
+        cell_nodes = np.array([])
+        for i in range(0, cellIds.GetNumberOfIds()):  # for every node of the given cell
+            coord = polydata.GetPoint(cellIds.GetId(i))  # get coordinates of the node, type: class 'tuple'
+            x = np.around(coord[0], 2)  # get x-coordinate of the node, type: class 'float'
+    #        print(x)
+            y = np.around(coord[1], 2)  # get y-coordinate of the node, type: class 'float'
+    #        print(y)
+            node_id = np.where((reference_node_coordinates[:,0] == x) & (reference_node_coordinates[:,1] == y))[0]
+    #        print(node_id)
+            cell_nodes = np.hstack([cell_nodes, node_id])
+        segment_nodes = np.vstack([segment_nodes, cell_nodes]) if segment_nodes.size else cell_nodes
+    segment_nodes = segment_nodes.astype('int')
+    
+    # Get the number of nodes
+    number_of_nodes = len(reference_node_coordinates)
+    
+    # Initialise two nxn matrices of zeros, where n is the number of nodes
+    diameter_adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
+    length_adjacency_matrix = np.zeros((number_of_nodes, number_of_nodes))
+
+    # Fill in the adjacency matrices
+    for segment_index, segment in enumerate(segment_nodes):
+        
+        # Get the segment nodes
+        row, col = segment
+        
+        # Fill in the adjacency matrices
+        diameter_adjacency_matrix[row,col] = segment_diameters_um[segment_index]
+        diameter_adjacency_matrix[col,row] = segment_diameters_um[segment_index]
+        length_adjacency_matrix[row,col] = reference_rank_lengths_um[int(cell_data_array['Vessel Owner Rank'][segment_index])]
+        length_adjacency_matrix[col,row] = reference_rank_lengths_um[int(cell_data_array['Vessel Owner Rank'][segment_index])]
+
+    # Get the diameter TDA characteristics
+    n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component = PH_betti2(diameter_adjacency_matrix)
+
+    # Calculate the following perfusion metrics: total blood flow (in m3/s); FCD (functional capillary density); Vessel Density; Heterogeneity Index (for the flow velocity)
+    first_rank_zero_index = np.where(cell_data_array['Vessel Owner Rank'] == 0)[0][0]  # Gets the index of the first inlet/outlet vessel in the array (assumes all inlets/outlets are equal)
+    total_blood_flow = cell_data_array['Absolute Vessel Flow Rate m^3/s'][first_rank_zero_index]  # Get the flow rate for the rank 0 vessel
+    perfused_vessel_indices = np.where(cell_data_array['Absolute Vessel Flow Rate m^3/s'] >= pq_threshold)[0] 
+    perfused_vessel_ranks = cell_data_array['Vessel Owner Rank'][perfused_vessel_indices]
+    perfused_vessel_lengths = [reference_rank_lengths_um[int(vessel_rank)] for vessel_rank in perfused_vessel_ranks]  # get vessel length based on rank    
+
+    # crossing_vessels = 
+    # vessel density = n_vessels that include three x coordinates and three y-coordinates/sum(segment_lengths)
+    fcd_numerator = sum(perfused_vessel_lengths)
+
+    # Return the architectural features and the adjacency matrices
+    # return n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component
+    return n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, n_cycles, total_blood_flow, fcd_numerator
 
 # Define a function to extract the predictive metrics from the hexagonal network
 def get_hex_predictors(vtk_path, vessel_length_m, reference_node_coordinates, inlet_radius_m, pq_threshold, diameter_threshold_list, flow_rate_threshold_list):
@@ -406,8 +481,8 @@ def filter_by_alpha(alpha_list, solver_stats):
     return alpha_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite
   '''
         
-# Define a function to filter the simulation stats based on alpha values and return individual matrices
-def filter_by_alpha(alpha_list, solver_stats):
+# Define a function to filter the simulation stats based on alpha values and return individual matrices (used in Paper 1)
+def filter_by_alpha_old(alpha_list, solver_stats):
     hypoxic_fraction_composite = np.array([])
     mean_composite = np.array([])
     min_composite = np.array([])
@@ -462,6 +537,54 @@ def filter_by_alpha(alpha_list, solver_stats):
         size_largest_connected_component_composite = np.vstack([size_largest_connected_component_composite, size_largest_connected_component_data]) if size_largest_connected_component_composite.size else size_largest_connected_component_data
         n_cycles_largest_connected_component_composite = np.vstack([n_cycles_largest_connected_component_composite, n_cycles_largest_connected_component_data]) if n_cycles_largest_connected_component_composite.size else n_cycles_largest_connected_component_data
     return alpha_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite, n_connected_components_composite, n_cycles_composite, size_largest_connected_component_composite, n_cycles_largest_connected_component_composite 
+
+# Define a function to filter the simulation stats based on alpha values and return individual matrices
+def filter_by_alpha(alpha_list, solver_stats):
+    hypoxic_fraction_composite = np.array([])
+    mean_composite = np.array([])
+    min_composite = np.array([])
+    half_composite = np.array([])
+    max_composite = np.array([])
+    sd_composite = np.array([])  
+    n_vessels_composite = np.array([])
+    n_perfused_vessels_composite = np.array([])
+    n_unperfused_vessels_composite = np.array([])
+    mean_diameter_composite = np.array([])
+    mean_geometric_resistance_composite = np.array([])
+    n_cycles_composite = np.array([])
+    total_blood_flow_composite = np.array([])
+    fcd_composite = np.array([])
+    for alpha_value in alpha_list:
+        alpha_array = solver_stats[(solver_stats[:,0]==float(alpha_value))]
+        hypoxic_fraction_data = alpha_array[:,2:3]  # extract data between identifiers and basic stats (i.e., hypoxic fractions)
+        mean_data = alpha_array[:,3]
+        min_data = alpha_array[:,4]
+        half_data = alpha_array[:,5]
+        max_data = alpha_array[:,6]
+        sd_data = alpha_array[:,7]
+        n_vessels_data = alpha_array[:,8]
+        n_perfused_vessels_data = alpha_array[:,9]
+        n_unperfused_vessels_data = alpha_array[:,10]
+        mean_diameter_data = alpha_array[:,11]
+        mean_geometric_resistance_data = alpha_array[:,12]  
+        n_cycles_data = alpha_array[:,13]  
+        total_blood_flow_data = alpha_array[:,14]  
+        fcd_data = alpha_array[:,15]  
+        hypoxic_fraction_composite = np.vstack([hypoxic_fraction_composite, hypoxic_fraction_data]) if hypoxic_fraction_composite.size else hypoxic_fraction_data
+        mean_composite = np.vstack([mean_composite, mean_data]) if mean_composite.size else mean_data
+        min_composite = np.vstack([min_composite, min_data]) if min_composite.size else min_data
+        half_composite = np.vstack([half_composite, half_data]) if half_composite.size else half_data
+        max_composite = np.vstack([max_composite, max_data]) if max_composite.size else max_data
+        sd_composite = np.vstack([sd_composite, sd_data]) if sd_composite.size else sd_data
+        n_vessels_composite = np.vstack([n_vessels_composite, n_vessels_data]) if n_vessels_composite.size else n_vessels_data
+        n_perfused_vessels_composite = np.vstack([n_perfused_vessels_composite, n_perfused_vessels_data]) if n_perfused_vessels_composite.size else n_perfused_vessels_data
+        n_unperfused_vessels_composite = np.vstack([n_unperfused_vessels_composite, n_unperfused_vessels_data]) if n_unperfused_vessels_composite.size else n_unperfused_vessels_data
+        mean_diameter_composite = np.vstack([mean_diameter_composite, mean_diameter_data]) if mean_diameter_composite.size else mean_diameter_data
+        mean_geometric_resistance_composite = np.vstack([mean_geometric_resistance_composite, mean_geometric_resistance_data]) if mean_geometric_resistance_composite.size else mean_geometric_resistance_data
+        n_cycles_composite = np.vstack([n_cycles_composite, n_cycles_data]) if n_cycles_composite.size else n_cycles_data
+        total_blood_flow_composite = np.vstack([total_blood_flow_composite, total_blood_flow_data]) if total_blood_flow_composite.size else total_blood_flow_data
+        fcd_composite = np.vstack([fcd_composite, fcd_data]) if fcd_composite.size else fcd_data
+    return alpha_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, n_cycles_composite, total_blood_flow_composite, fcd_composite
 
 # Define a function to filter the simulation stats based on alpha values and return individual matrices
 def filter_by_alpha_fork_stoch(alpha_list, solver_stats):
@@ -666,3 +789,17 @@ def PH_betti2(Weighted_adjacency_matrix):
 #        biggest1 = np.append(biggest1,n_cycles_largest_connected_component)
     
     return number_of_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component
+
+
+# Define a function to return the following perfusion metrics: total blood flow (in m3/s); FCD (functional capillary density); Vessel Density; Heterogeneity Index (for the flow velocity)
+def get_perfusion_metrics(vtk_path, reference_rank_lengths, reference_node_coordinates, pq_threshold):
+                          
+    # Obtain the flow rate in the inlet
+    point_coordinates_data_array, point_data_array, cell_data_array, polydata = get_vtk_data(vtk_path)
+
+    
+    # total blood flow = the flow rate at (the sum of the) inlet/outlet
+    # fcd = (n_perfused_vessels in each rank * the corr rank length)/total length of all vessels remaining in each rank
+    # fcd_1 = n_perfused_vessels that include three x coordinates and three y-coordinates / total length of all vessels remaining in each rank
+    
+    return total_blood_flow, fcd, vessel_density, fcd, heterog_index_, 

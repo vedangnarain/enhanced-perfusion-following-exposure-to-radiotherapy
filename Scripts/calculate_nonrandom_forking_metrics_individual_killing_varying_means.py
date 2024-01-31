@@ -8,6 +8,8 @@ Created on Wed Jun 29 21:01:37 2022
 Tested in Python 3.7.4.
 
 Calculate metrics for the forking network with individual vessel pruning and varying means.
+
+Colour palette from https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7.
 """
 
 # =============================================================================
@@ -59,7 +61,7 @@ def get_distribution_stats(solver_name, alpha_value, mean_value, kills, hypoxic_
     if read==0:    
         
         # Compute the architectural metrics
-        n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component = get_forking_predictors(network_path, reference_rank_lengths, reference_node_coordinates, pq_threshold, diameter_threshold_list, flow_rate_threshold_list)
+        n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component = get_forking_predictors_old(network_path, reference_rank_lengths, reference_node_coordinates, pq_threshold, diameter_threshold_list, flow_rate_threshold_list)
 
     return 0, 0, 0, 0, 0, 0, n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component
 
@@ -80,7 +82,7 @@ def get_solver_stats(solver_name, alpha_value, mean_list, kills_list, hypoxic_th
 # =============================================================================
 
 # Enter details to allow looping over folders
-n_gens = 6
+n_gens = 7
 d_inlet = 75    
 max_kills = 249
 # max_kills = 508
@@ -127,7 +129,7 @@ solver_stats = get_solver_stats(solver_name, alpha_value, mean_list, kills_list,
 #solver_stats = np.load(main_folder_path + solver_name + 'Haematocrit/python_solver_data.npy')
 
 # Filter by mean
-mean_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite, n_connected_components_composite, n_cycles_composite, size_largest_connected_component_composite, n_cycles_largest_connected_component_composite = filter_by_alpha(mean_list, solver_stats)
+mean_array, hypoxic_fraction_composite, mean_composite, min_composite, half_composite, max_composite, sd_composite, n_vessels_composite, n_perfused_vessels_composite, n_unperfused_vessels_composite, mean_diameter_composite, mean_geometric_resistance_composite, diameter_binned_composite, flow_rate_binned_composite, n_connected_components_composite, n_cycles_composite, size_largest_connected_component_composite, n_cycles_largest_connected_component_composite = filter_by_alpha_old(mean_list, solver_stats)
 
 # =============================================================================
 # PERFUSION QUOTIENTS
@@ -306,9 +308,9 @@ def plot_a_single_mean(which_mean):
     # FIGURE 13
     # =============================================================================
 
-    '''
+    # '''
     # Plot the loops per vessel (for a single mean value since it doesn't make a difference)
-    ax2 = axs.twinx()
+    # axs.tick_params(axis='y', color='r')
     loops_per_vessel = n_cycles_composite/n_vessels_composite
     axs.plot(mean_array[:,1], loops_per_vessel[which_mean]*100, label = r'$\overline{\beta_1}$', c=linecolours[2], lw=width, ls=linestyles[1])
     axs.set_xlim(0,max_kills)
@@ -316,15 +318,16 @@ def plot_a_single_mean(which_mean):
     axs.set_xlabel('dosage (vessels pruned)')    
     axs.grid()    
     pq_composite[:,0]=pq_composite[:,1]  # fix flow rate error
+    ax2 = axs.twinx()
     ax2.plot(mean_array[:,1], (pq_composite[which_mean,:]-pq_composite[which_mean,1])*100/pq_composite[which_mean,1], label='$\Delta_{\%} \mathcal{P}$', c=linecolours[0], lw=width, ls=linestyles[0])
     ax2.set_ylim(-100,100)  
     axs.title.set_text('${α}$ = ' + graph_alpha_list[which_alpha]) 
     if which_alpha==1:
         fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=axs.transAxes)
-        axs.set_ylabel(r'$\overline{\beta_1}$ $(\times 10^{-2})$') 
+        axs.set_ylabel(r'$\overline{\beta_1}$ $(\times 10^{-2})$', c=linecolours[2]) 
     if which_alpha==3:
-        ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$')  #, c='C0
-    '''
+        ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$', c=linecolours[0])  #, c='C0
+    # '''
 
     # =============================================================================
     # FIGURE 14

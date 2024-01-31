@@ -9,6 +9,8 @@ Tested in Python 3.7.4.
 
 Generate a 3x3 figure for a new set of parameters for the forking network with 
 individual vessel pruning and varying means.
+
+Colour palette from https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7.
 """
 
 # =============================================================================
@@ -120,7 +122,7 @@ def get_solver_stats(solver_name, alpha_value, mean_list, kills_list, hypoxic_th
 
 # Enter details to allow looping over folders
 max_kills = 249
-n_gens = 6
+n_gens = 7
 d_inlet = 75    
 which_solver = 0
 pf_threshold = 3.e-12
@@ -262,6 +264,14 @@ for row in range(len(alpha_list)):
         ax2.set_ylim(-100,250)  
         # ax2.set_ylim(-100,300)  
         # fig.legend(loc="upper right", bbox_to_anchor=(1,1), bbox_transform=ax.transAxes)
+        increasing_region = (np.diff(graph_df['n_perfused_vessels_composite'])>0) & (np.diff(relative_pf)>0)
+        # ax.fill_between(graph_df['kills'][:-1], 0, 1, where=increasing_region, color='gray', alpha=0.5, transform=ax.get_xaxis_transform())
+            
+        for i, is_increasing in enumerate(increasing_region):
+            if is_increasing:
+                ax.axvline(graph_df['kills'].iloc[i], color='gray', linestyle='-', linewidth=width-0, alpha=0.5)
+
+
         if row==0:
             ax.title.set_text(r'$\overline{d}$ = ' + graph_mean_list[col])  
             if col==0:
