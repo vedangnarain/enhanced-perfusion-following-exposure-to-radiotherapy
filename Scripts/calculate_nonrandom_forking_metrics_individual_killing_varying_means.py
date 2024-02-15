@@ -65,7 +65,6 @@ def get_distribution_stats(solver_name, alpha_value, mean_value, kills, hypoxic_
 
     return 0, 0, 0, 0, 0, 0, n_vessels, n_perfused_vessels, n_unperfused_vessels, mean_diameter, mean_geometric_resistance, diameter_binned, flow_rate_binned, n_connected_components, n_cycles, size_largest_connected_component, n_cycles_largest_connected_component
 
-
 # Define a function to return statistics for all the heterogeneities in the data
 def get_solver_stats(solver_name, alpha_value, mean_list, kills_list, hypoxic_threshold_list, plot, read):
 #    table = np.array([])
@@ -88,7 +87,7 @@ max_kills = 249
 # max_kills = 508
 # max_kills = 124
 pq_threshold = 3.e-12
-which_mean = 0
+which_mean = 1
 which_alpha = 1
 
 # Set folder path
@@ -210,25 +209,25 @@ def plot_a_single_mean(which_mean):
     axs.set_xlim(0)
     axs.set_ylabel(r'$\Delta_{\%} \mathcal{P}$') 
     axs.set_ylim(-100,100)  
-    axs.set_xlim(0, max_kills)
+    axs.set_xlim(0, max_kills+2)
     axs.grid()
     axs.set_xlabel('dosage (vessels pruned)') 
     row_index+=1    
     '''
     
-    '''
+    # '''
     # Plot the number of vessels
     axs.plot(mean_array[:,1], n_vessels_composite[x], ls=linestyles[2], label='total', c=linecolours[0])
     axs.plot(mean_array[:,1], n_perfused_vessels_composite[x], ls=linestyles[1], label='perfused', c=linecolours[1], lw=width)
     axs.plot(mean_array[:,1], n_unperfused_vessels_composite[x], ls=linestyles[0], label='hypoperfused', c=linecolours[2], lw=width)
-    axs.set_xlim(0, max_kills)
-    axs.set_ylim(0, max_kills)
+    axs.set_xlim(0, max_kills+2)
+    axs.set_ylim(0, np.max(n_vessels_composite[x]))
     axs.set_ylabel('composition (number of vessels)') 
     axs.set_xlabel('dosage (vessels pruned)') 
     axs.legend()
-    axs.grid()
+    axs.grid('True')
     row_index+=1
-    '''
+    # '''
     
     # =============================================================================
     # FIGURE 9 (PART)
@@ -308,7 +307,7 @@ def plot_a_single_mean(which_mean):
     # FIGURE 13
     # =============================================================================
 
-    # '''
+    '''
     # Plot the loops per vessel (for a single mean value since it doesn't make a difference)
     # axs.tick_params(axis='y', color='r')
     loops_per_vessel = n_cycles_composite/n_vessels_composite
@@ -327,7 +326,7 @@ def plot_a_single_mean(which_mean):
         axs.set_ylabel(r'$\overline{\beta_1}$ $(\times 10^{-2})$', c=linecolours[2]) 
     if which_alpha==3:
         ax2.set_ylabel(r'$\Delta_{\%} \mathcal{P}$', c=linecolours[0])  #, c='C0
-    # '''
+    '''
 
     # =============================================================================
     # FIGURE 14
@@ -393,8 +392,8 @@ def plot_a_single_mean(which_mean):
 
 
 # plot_a_single_mean(0)
-# plot_a_single_mean(1)
-plot_a_single_mean(2)
+plot_a_single_mean(1)
+# plot_a_single_mean(2)
 
 # Prints execution time
 print("\n--- Execution Time: %s seconds ---" % (time.time() - start_time))
