@@ -1,6 +1,8 @@
 # Enhanced perfusion following exposure to radiotherapy: a theoretical investigation
 
-An archive of code used to generate simulations and figures for the submitted paper ['Enhanced perfusion following exposure to radiotherapy: a theoretical investigation'](https://www.biorxiv.org/content/10.1101/2023.06.12.544532v1).
+An archive of code used to generate simulations and figures for the paper ['Enhanced perfusion following exposure to radiotherapy: a theoretical investigation'](https://doi.org/10.1371/journal.pcbi.1011252). Please use the following citation:
+
+Köry J, Narain V, Stolz BJ, Kaeppler J, Markelc B, et al. (2024) Enhanced perfusion following exposure to radiotherapy: A theoretical investigation. PLOS Computational Biology 20(2): e1011252. https://doi.org/10.1371/journal.pcbi.1011252
 
 ## Simulations
 
